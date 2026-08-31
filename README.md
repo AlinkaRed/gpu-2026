@@ -146,53 +146,7 @@ std::vector<float> GeluCUDA(const std::vector<float>& input) {
  - allocate and free device memory once;
  - use better formula to compute GELU, e.g. replace *tanh()* with *exp()*.
 
-## Task #3: Naive Matrix Multiplication using OpenMP
-General matrix multiplication (GEMM) is a very basic and broadly used linear algebra operation applied in high performance computing (HPC), statistics, deep learning and other domains. There are a lot of GEMM algorithms with different mathematical complexity form $O(n^3)$ for naive and block approaches to $O(n^{2.371552})$ for the method descibed by Williams et al. in 2024 [[1](https://epubs.siam.org/doi/10.1137/1.9781611977912.134)]. But despite a variety of algorithms with low complexity, block matrix multiplication remains the most used implementation in practice since it fits to modern HW better.
-
-To start learning matrix multiplication smoother, let us start with naive approach here. To compute matrix multiplication result C for matricies A and B, where C = A * B and the size for all matricies are $n*n$, one should use the following formula for each element of C (will consider only square matricies for simplicity):
-
-$c_{ij}=\sum_{k=1}^na_{ik}b_{kj}$
-
-To complete the task one should implement a function that multiplies two square matricies using OpenMP with the following interface:
-```cpp
-std::vector<float> NaiveGemmOMP(const std::vector<float>& a,
-                                const std::vector<float>& b,
-                                int n);
-```
-Each matrix must be stored in a linear array by rows, so that `a.size()==n*n`. Function takes two matricies and their size as inputs, and returns result matrix also stored by rows.
-
-For simplicity, let's consider matrix size is always power of 2.
-
-Two files are expected to be uploaded:
-- naive_gemm_omp.h:
-```cpp
-#ifndef __NAIVE_GEMM_OMP_H
-#define __NAIVE_GEMM_OMP_H
-
-#include <vector>
-
-std::vector<float> NaiveGemmOMP(const std::vector<float>& a,
-                                const std::vector<float>& b,
-                                int n);
-
-#endif // __NAIVE_GEMM_OMP_H
-```
-- naive_gemm_omp.cpp:
-```cpp
-#include "naive_gemm_omp.h"
-
-std::vector<float> NaiveGemmOMP(const std::vector<float>& a,
-                                const std::vector<float>& b,
-                                int n) {
-    // Place your implementation here
-}
-```
-**Performance Hints:**
- - cache-friendly memory accesses;
- - loop unrolling;
- - loop vectorization.
-
-## Task #4: Naive Matrix Multiplication using CUDA
+## Task #3: Naive Matrix Multiplication using CUDA
 General matrix multiplication (GEMM) is a very basic and broadly used linear algebra operation applied in high performance computing (HPC), statistics, deep learning and other domains. There are a lot of GEMM algorithms with different mathematical complexity form $O(n^3)$ for naive and block approaches to $O(n^{2.371552})$ for the method descibed by Williams et al. in 2024 [[1](https://epubs.siam.org/doi/10.1137/1.9781611977912.134)]. But despite a variety of algorithms with low complexity, block matrix multiplication remains the most used implementation in practice since it fits to modern HW better.
 
 To start learning matrix multiplication smoother, let us start with naive approach here. To compute matrix multiplication result C for matricies A and B, where C = A * B and the size for all matricies are $n*n$, one should use the following formula for each element of C (will consider only square matricies for simplicity):
@@ -236,55 +190,7 @@ std::vector<float> NaiveGemmCUDA(const std::vector<float>& a,
  - block size selection;
  - overlap host memory allocation and CUDA computations.
 
-## Task #5: Block Matrix Multiplication using OpenMP
-In real applications block-based approach for matrix multiplication can get multiple times faster execution comparing with naive version due to cache friendly approach. To prove this in practice, implement such a version in C++ using OpenMP.
-
-In block version algorithm could be divided into three stages:
-1. Split matricies into blocks (block size normally affects performance significantly so choose it consciously);
-2. Multiply two blocks to get partial result;
-3. Replay step 2 for all row/column blocks accumulating values into a single result block.
-
-From math perspective, block matrix multiplication could be described by the following formula, where $C_{IJ}$, $A_{IK}$ and $B_{KJ}$ are sub-matricies with the size $block\_size*block\_size$:
-
-$C_{IJ}=\sum_{k=1}^{block_count}A_{IK}B_{KJ}$
-
-Each matrix must be stored in a linear array by rows, so that `a.size()==n*n`. Function takes two matricies and their size as inputs, and returns result matrix also stored by rows.
-
-For simplicity, let's consider matrix size is always power of 2.
-
-Two files are expected to be uploaded:
-- block_gemm_omp.h:
-```cpp
-#ifndef __BLOCK_GEMM_OMP_H
-#define __BLOCK_GEMM_OMP_H
-
-#include <vector>
-
-std::vector<float> BlockGemmOMP(const std::vector<float>& a,
-                                const std::vector<float>& b,
-                                int n);
-
-#endif // __BLOCK_GEMM_OMP_H
-```
-- block_gemm_omp.cpp:
-```cpp
-#include "block_gemm_omp.h"
-
-std::vector<float> BlockGemmOMP(const std::vector<float>& a,
-                                const std::vector<float>& b,
-                                int n) {
-    // Place your implementation here
-}
-```
-
-As in previous task, let us consider all matricies are square.
-
-**Performance Hints:**
- - cache-friendly memory accesses;
- - loop unrolling;
- - loop vectorization.
-
-## Task #6: Block Matrix Multiplication using CUDA
+## Task #4: Block Matrix Multiplication using CUDA
 In real applications block-based approach for matrix multiplication can get multiple times faster execution comparing with naive version due to cache friendly approach. To prove this in practice, implement such a version in C++ using OpenMP.
 
 In block version algorithm could be divided into three stages:
@@ -342,7 +248,7 @@ std::vector<float> BlockGemmCUDA(const std::vector<float>& a,
  - block size selection;
  - overlap host memory allocation and CUDA computations.
 
-## Task #7: Matrix Multiplication using cuBLAS
+## Task #5: Matrix Multiplication using cuBLAS
 The most performant way to multiply two matrices on particular hardware is to use vendor-provided library for this purpose. In CUDA it's [cuBLAS](https://docs.nvidia.com/cuda/cublas/index.html). Try to use cuBLAS API to implement general matrix multiplication in most performant way.
 
 Each matrix must be stored in a linear array by rows, so that `a.size()==n*n`. Function takes two matricies and their size as inputs, and returns result matrix also stored by rows.
@@ -379,7 +285,7 @@ std::vector<float> GemmCUBLAS(const std::vector<float>& a,
  - overlap host memory allocation and CUDA computations;
  - avoid redundant device memory allocation.
 
-## Task #8: CUDA Softmax Implementation
+## Task #6: CUDA Softmax Implementation
 The **softmax** function is a fundamental operation in machine learning, often used to convert a vector of raw scores into a probability distribution. For an input vector $x$ of length $N$, the softmax is defined element-wise as:
 
 Softmax(x) = $e^{x_i}/(\sum_{j=1}^ne^{x_j})$ for $i=1,..,N$
@@ -430,7 +336,7 @@ std::vector<float> SoftmaxCUDA(const std::vector<float>& input, int row_count) {
  - overlap host memory allocation and CUDA computations;
  - use registers and/or shared memory to cache input values.
 
-## Task #9: Layer Norm Implementation in PyCUDA
+## Task #7: Layer Norm Implementation in PyCUDA
 Layer Normalization (**LayerNorm**) is a widely used technique in deep learning that normalizes activations across the feature dimension for each sample independently. For an input vector x of length N (the features of one sample), LayerNorm is defined as:
 
 $$x'_i=(x_i-\mu)/\sqrt{\sigma^2+\epsilon}$$
@@ -479,7 +385,7 @@ def layernorm_pycuda(input, gamma, beta, row_size, eps=1e-5):
 For simplicity, let's consider `row_size` is power of 2. Target data type is float32.
 One may use numba or C strings to write CUDA kernels.
 
-## Task #10: OpenCL GELU Implementation
+## Task #8: OpenCL GELU Implementation
 Implement GELU function with the following interface in OpenCL using the formula described in task #1:
 ```cpp
 std::vector<float> GeluOCL(const std::vector<float>& input, int platform);
