@@ -4,9 +4,13 @@
 
 namespace {
 
+constexpr int kBlockX = 32;
+constexpr int kBlockY = 8;
+constexpr int kVec = 4;
+
 __global__ void GemmKernel(const float* __restrict__ a, const float* __restrict__ b,
                            float* __restrict__ c, int n) {
-    const int col = (blockIdx.x * blockDim.x + threadIdx.x) * 4;
+    const int col = (blockIdx.x * blockDim.x + threadIdx.x) * kVec;
     const int row = blockIdx.y * blockDim.y + threadIdx.y;
     if (row >= n || col >= n) {
         return;
@@ -61,12 +65,12 @@ std::vector<float> NaiveGemmCUDA(const std::vector<float>& a, const std::vector<
     cudaMemcpy(d_a, a.data(), bytes, cudaMemcpyHostToDevice);
     cudaMemcpy(d_b, b.data(), bytes, cudaMemcpyHostToDevice);
 
-    dim3 block(32, 8);
-    if (n >= 4) {
-        dim3 grid((n / 4 + 31) / 32, (n + 7) / 8);
+    dim3 block(kBlockX, kBlockY);
+    if (n >= kVec) {
+        dim3 grid((n / kVec + kBlockX - 1) / kBlockX, (n + kBlockY - 1) / kBlockY);
         GemmKernel<<<grid, block>>>(d_a, d_b, d_c, n);
     } else if (n > 0) {
-        dim3 grid((n + 31) / 32, (n + 7) / 8);
+        dim3 grid((n + kBlockX - 1) / kBlockX, (n + kBlockY - 1) / kBlockY);
         GemmScalar<<<grid, block>>>(d_a, d_b, d_c, n);
     }
 
